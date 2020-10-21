@@ -196,6 +196,11 @@ parser.add_option("--maxpatch_pft", dest="maxpatch_pft", default=17, \
                   help = "user-defined max. patch PFT number, default is 17")
 parser.add_option("--landusefile", dest="pftdynfile", default='', \
                   help='user-defined dynamic PFT file')
+parser.add_option("--res", dest="res", default="CLM_USRDAT", \
+                      help='Resoultion for global/user-defined simulation')
+#if LND model name changed from 'CLM' to 'ELM'
+parser.add_option("--lndnamechanged", dest="lndnamechanged", default=False, \
+                  help = 'if LND name changed from "CLM" to "ELM"', action="store_true")
 
 parser.add_option("--no_submit",dest="no_submit",default=False,action="store_true",
                     help='Do not submit jobs')
@@ -562,6 +567,10 @@ for row in AFdatareader:
             basecmd = basecmd + ' --maxpatch_pft '+options.maxpatch_pft
         if (options.pftdynfile != ''):
             basecmd = basecmd + ' --landusefile '+options.pftdynfile
+        if (options.res != 'CLM_USRDAT'):
+            basecmd = basecmd + ' --res '+options.res
+        if (options.lndnamechanged): #indicating LND name changed from 'CLM' to 'ELM'
+            basecmd = basecmd + ' --lndnamechanged '
 
         if (options.var_soilthickness):
             basecmd = basecmd + ' --var_soilthickness'
@@ -803,6 +812,7 @@ for row in AFdatareader:
                         ad_case_firstsite+' --site_orig '+firstsite +\
                         ' --site_new '+site+' --nyears '+str(ny_ad)+' --spin_cycle ' \
                         +str(endyear-startyear+1)
+                if(options.lndnamechanged): ptcmd = ptcmd+' --lndnamechanged'
                 result = os.system(ptcmd)
             if (result > 0):
                 print('Site_fullrun:  Error in runcase.py for ad_spinup ')
@@ -822,6 +832,7 @@ for row in AFdatareader:
                     fin_case_firstsite+' --site_orig '+firstsite +\
                     ' --site_new '+site+' --nyears '+str(ny_fin)+' --finidat_year ' \
                     +str(int(ny_ad)+1)+' --spin_cycle '+str(endyear-startyear+1)
+            if(options.lndnamechanged): ptcmd = ptcmd+' --lndnamechanged'
             result = os.system(ptcmd)
             if (result > 0):
                 print('Site_fullrun:  Error in runcase.py final spinup')
@@ -840,6 +851,7 @@ for row in AFdatareader:
                         tr_case_firstsite+' --site_orig '+firstsite +\
                         ' --site_new '+site+' --finidat_year '+str(int(ny_fin)+1)+ \
                         ' --nyears '+str(translen)
+                 if(options.lndnamechanged): ptcmd = ptcmd+' --lndnamechanged'
                  result = os.system(ptcmd)
             if ((options.cruncep or options.cruncepv8 or options.gswp3 or options.princeton) and not options.cpl_bypass):
                  print('\nSetting up transient case phase 2\n')
@@ -994,6 +1006,10 @@ for row in AFdatareader:
                     output.write("python adjust_restart.py --rundir "+os.path.abspath(runroot)+ \
                                  '/'+ad_case+'/run/ --casename '+ ad_case+' --restart_year '+ \
                                  str(int(ny_ad)+1)+' --BGC\n')
+                elif (options.lndnamechanged):
+                    output.write("python adjust_restart.py --rundir "+os.path.abspath(runroot)+ \
+                                 '/'+ad_case+'/run/ --casename '+ ad_case+' --restart_year '+ \
+                                 str(int(ny_ad)+1)+' --lndnamechanged\n')
                 else:
                     output.write("python adjust_restart.py --rundir "+os.path.abspath(runroot)+ \
                                  '/'+ad_case+'/run/ --casename '+ad_case+' --restart_year '+ \
