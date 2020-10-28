@@ -138,6 +138,8 @@ parser.add_option("--princeton", dest="princeton", default=False, \
                   action="store_true", help = 'Use Princeton meteorology')
 parser.add_option("--daymet", dest="daymet", default=False, \
                   action="store_true", help = 'Use Daymet corrected meteorology')
+parser.add_option("--daymet4", dest="daymet4", default=False, \
+                  action="store_true", help = "Daymet v4 downscaled GSWP3-v2 forcing with user-provided domain and surface data)")
 parser.add_option("--surfdata_grid", dest="surfdata_grid", default=False, \
                   help = 'Use gridded surface data instead of site data', action="store_true")
 parser.add_option("--surffile", dest="surffile", default='', \
@@ -523,6 +525,9 @@ for row in AFdatareader:
             basecmd = basecmd+' --princeton'
         if (options.daymet):
             basecmd = basecmd+' --daymet'
+        if (options.daymet4): # gswp3 v2 spatially-downscaled by daymet v4, usually together with user-defined domain and surface data
+            basecmd = basecmd+' --daymet4'
+            if (not options.gswp3): basecmd = basecmd+' --gswp3'
         if (options.fates_paramfile != ''):
             basecmd = basecmd+ ' --fates_paramfile '+options.fates_paramfile
         if (options.surfdata_grid):
